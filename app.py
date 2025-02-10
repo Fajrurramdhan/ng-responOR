@@ -4,7 +4,7 @@ import random
 import string
 import json
 
-# Constants
+# Constants province
 PROVINSI_INDONESIA = [
     "ACEH", "SUMATERA UTARA", "SUMATERA BARAT", "RIAU", "JAMBI", "SUMATERA SELATAN",
     "BENGKULU", "LAMPUNG", "KEPULAUAN BANGKA BELITUNG", "KEPULAUAN RIAU", "DKI JAKARTA",
@@ -117,32 +117,26 @@ LOKASI_DATA = {
     }
 }
 
-def convert_selections_to_json(selected_locations):
+def convert_selections_to_json(master_locations):
     """Convert selected locations to JSON format."""
     json_data = {
-        "selected_locations": {
+        "master_locations": {
             "depot": [],
             "shelter": [],
             "village": []
-        },
-        "summary": {
-            "total_depot": len(selected_locations['Depot']),
-            "total_shelter": len(selected_locations['Shelter']),
-            "total_village": len(selected_locations['Village']),
-            "total_locations": sum(len(locations) for locations in selected_locations.values())
         }
     }
     
     # Add locations data
     for location_type in ['Depot', 'Shelter', 'Village']:
-        for location in selected_locations[location_type]:
+        for location in master_locations[location_type]:
             location_data = {
                 "name": location['Nama'],
                 "latitude": float(location['Latitude']),
                 "longitude": float(location['Longitude']),
                 "type": location['Type']
             }
-            json_data["selected_locations"][location_type.lower()].append(location_data)
+            json_data["master_locations"][location_type.lower()].append(location_data)
     
     return json_data
 
@@ -178,8 +172,8 @@ def display_location_management(province):
         }
     
     # Initialize selected locations session state
-    if 'selected_locations' not in st.session_state:
-        st.session_state.selected_locations = {
+    if 'master_locations' not in st.session_state:
+        st.session_state.master_locations = {
             'Depot': [],
             'Shelter': [],
             'Village': []
@@ -187,7 +181,7 @@ def display_location_management(province):
     
     # Function to update selected locations
     def update_selection(location_type, selected_indices, data):
-        st.session_state.selected_locations[location_type] = [
+        st.session_state.master_locations[location_type] = [
             data.iloc[idx] for idx in selected_indices
         ]
 
@@ -249,57 +243,13 @@ def display_location_management(province):
                             mime='text/csv',
                             key=f"download_{location_type}"
                         )
-                with col2:
-                    if st.button(f"Add New {location_type}", key=f"add_{location_type}"):
-                        st.session_state.show_form[location_type] = True
-                with col3:
-                    if st.button(f"View Map", key=f"map_{location_type}"):
-                        st.info(f"Map view for {location_type} locations will be implemented soon")
-
-                # Form untuk menambah lokasi baru
-                if st.session_state.show_form[location_type]:
-                    with st.form(key=f'add_{location_type}_form'):
-                        st.subheader(f"Add New {location_type}")
-                        new_name = st.text_input("Location Name")
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            new_lat = st.text_input("Latitude")
-                        with col2:
-                            new_lon = st.text_input("Longitude")
                         
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            if st.form_submit_button("Save", type="primary"):
-                                if new_name and new_lat and new_lon:
-                                    new_row = pd.DataFrame({
-                                        'Nama': [new_name],
-                                        'Latitude': [new_lat],
-                                        'Longitude': [new_lon],
-                                        'Type': [location_type]
-                                    })
-                                    st.session_state.temp_data[location_type] = pd.concat([
-                                        LOKASI_DATA[province][location_type],
-                                        new_row
-                                    ], ignore_index=True)
-                                    st.success(f"New {location_type} location saved successfully!")
-                                    st.session_state.show_form[location_type] = False
-                                    st.rerun()
-                                else:
-                                    st.error("Please fill in all fields")
-                        with col2:
-                            if st.form_submit_button("Close"):
-                                st.session_state.show_form[location_type] = False
-                                st.rerun()
-
-            else:
-                st.info(f"No {location_type} data available for {province}")
-
     # Display summary and JSON export section
-    if any(len(locations) > 0 for locations in st.session_state.selected_locations.values()):
+    if any(len(locations) > 0 for locations in st.session_state.master_locations.values()):
         st.header("Selected Locations Summary")
         
         # Convert selections to JSON
-        json_data = convert_selections_to_json(st.session_state.selected_locations)
+        json_data = convert_selections_to_json(st.session_state.master_locations)
         
         # Display summary
         col1, col2 = st.columns([2, 1])
@@ -309,7 +259,7 @@ def display_location_management(province):
             st.download_button(
                 label="Download Selections as JSON",
                 data=json.dumps(json_data, indent=2),
-                file_name=f"selected_locations_{province.lower().replace(' ', '_')}.json",
+                file_name=f"master_locations_{province.lower().replace(' ', '_')}.json",
                 mime="application/json",
                 help="Download all selected locations in JSON format"
             )
@@ -318,37 +268,17 @@ def display_location_management(province):
                 # Here you can add logic to save the JSON data to a database or file
                 st.success("Selections saved successfully!")
                 
-                # Display summary counts
-                st.write("Summary:")
-                for key, value in json_data["summary"].items():
-                    st.write(f"- {key.replace('_', ' ').title()}: {value}")
-
     # Display summary of all selected locations
     st.header("Selected Locations Summary")
     for location_type in ["Depot", "Shelter", "Village"]:
-        if st.session_state.selected_locations[location_type]:
-            st.subheader(f"Selected {location_type}s ({len(st.session_state.selected_locations[location_type])})")
-            selected_df = pd.DataFrame(st.session_state.selected_locations[location_type])
+        if st.session_state.master_locations[location_type]:
+            st.subheader(f"Selected {location_type}s ({len(st.session_state.master_locations[location_type])})")
+            selected_df = pd.DataFrame(st.session_state.master_locations[location_type])
             st.dataframe(
                 selected_df[['Nama', 'Latitude', 'Longitude', 'Type']],
                 hide_index=True
             )
 
-    # Save all selections button
-    if any(len(locations) > 0 for locations in st.session_state.selected_locations.values()):
-        if st.button("Save All Selections", type="primary"):
-            # Here you can implement the save logic
-            # For now, we'll just show a success message
-            st.success("All selections saved successfully!")
-            
-            # Create a summary of selections
-            summary = {
-                'Depot': len(st.session_state.selected_locations['Depot']),
-                'Shelter': len(st.session_state.selected_locations['Shelter']),
-                'Village': len(st.session_state.selected_locations['Village'])
-            }
-            
-            st.json(summary)
 def display_process_control(province, output_dir, osm_file, poi_file, risk_layer, pixel_coords):
     """Display process control and monitoring interface."""
     st.header("Process Control")
