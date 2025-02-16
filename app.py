@@ -799,9 +799,6 @@ def main():
     # Add province and directory name selection at the top
     selected_province, directory_name = create_province_selection()
     
-    if not selected_province:
-        st.warning("Please select a province to continue.")
-        return
 
     st.write("Pilih lokasi untuk Integrate Module Network Generation")
 
