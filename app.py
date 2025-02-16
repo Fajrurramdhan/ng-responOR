@@ -793,8 +793,13 @@ def main():
         st.session_state.processed_data = False
     if 'project_random_id' not in st.session_state:
         st.session_state.project_random_id = generate_random_id()
+    if 'network_files_uploaded' not in st.session_state:
+        st.session_state.network_files_uploaded = False
 
     st.title("Network Generation")
+    
+     # Add province and directory name selection at the top
+    selected_province, directory_name = create_province_selection()
     
     st.write("Pilih lokasi untuk Integrate Module Network Generation")
 
@@ -802,43 +807,100 @@ def main():
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("Pilih Lokasi")
-        # Display a warning message when no data is available
-        st.info("Tidak ada data tersedia untuk provinsi SUMATERA BARAT")
+        # Create location selection interface with selected province
+        selected_df = create_location_selection(selected_province)
+        
+        if selected_df is not None and not selected_df.empty:
+            st.session_state.poi_df = selected_df
     
     with col2:
         st.subheader("Network Files")
-        network_pycgr = st.file_uploader("Upload Network PYCGR File (jakarta.pycgrc)", type=['pycgrc'])
-        network_json = st.file_uploader("Upload Network JSON File (jakarta_contracted.json)", type=['json'])
         
-        if network_pycgr and network_json:
-            try:
-                # Save temporary network file
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.pycgrc') as tmp_file:
-                    tmp_file.write(network_pycgr.getvalue())
-                    tmp_path = tmp_file.name
-                
-                # Process network file
-                nodes_df, edges_df = process_network_file(tmp_path)
-                
-                # Store in session state
-                st.session_state.nodes_df = nodes_df
-                st.session_state.edges_df = edges_df
-                
-                st.success("Network files berhasil diproses!")
-                
-                # Clean up temporary file
-                os.unlink(tmp_path)
-                
-            except Exception as e:
-                st.error(f"Error memproses network file: {str(e)}")
-    
+        # Create tabs for network files
+        network_tabs = st.tabs(["PYCGR File", "JSON File", "Status"])
+        
+        with network_tabs[0]:
+            st.write("### Upload PYCGR File")
+            network_pycgr = st.file_uploader(
+                "Upload Network PYCGR File (jakarta.pycgrc)", 
+                type=['pycgrc'],
+                key="pycgr_uploader"
+            )
+            if network_pycgr:
+                st.success(f"✓ File PYCGR berhasil diunggah: {network_pycgr.name}")
+        
+        with network_tabs[1]:
+            st.write("### Upload JSON File")
+            network_json = st.file_uploader(
+                "Upload Network JSON File (jakarta_contracted.json)", 
+                type=['json'],
+                key="json_uploader"
+            )
+            if network_json:
+                st.success(f"✓ File JSON berhasil diunggah: {network_json.name}")
+        
+        with network_tabs[2]:
+            st.write("### Status Files")
+            
+            # Show status of uploaded files
+            col_status1, col_status2 = st.columns(2)
+            
+            with col_status1:
+                if network_pycgr:
+                    st.success("PYCGR File: ✓ Terunggah")
+                else:
+                    st.error("PYCGR File: ✗ Belum diunggah")
+            
+            with col_status2:
+                if network_json:
+                    st.success("JSON File: ✓ Terunggah")
+                else:
+                    st.error("JSON File: ✗ Belum diunggah")
+            
+            # Process files if both are uploaded
+            if network_pycgr and network_json and not st.session_state.network_files_uploaded:
+                try:
+                    with st.spinner("Memproses network files..."):
+                        # Save temporary network file
+                        with tempfile.NamedTemporaryFile(delete=False, suffix='.pycgrc') as tmp_file:
+                            tmp_file.write(network_pycgr.getvalue())
+                            tmp_path = tmp_file.name
+                        
+                        # Process network file
+                        nodes_df, edges_df = process_network_file(tmp_path)
+                        
+                        # Store in session state
+                        st.session_state.nodes_df = nodes_df
+                        st.session_state.edges_df = edges_df
+                        st.session_state.network_files_uploaded = True
+                        
+                        # Show success message with stats
+                        st.success("Network files berhasil diproses!")
+                        st.write(f"- Total Nodes: {len(nodes_df)}")
+                        st.write(f"- Total Edges: {len(edges_df)}")
+                        
+                        # Clean up temporary file
+                        os.unlink(tmp_path)
+                        
+                except Exception as e:
+                    st.error(f"Error memproses network file: {str(e)}")
+            
+            # Show processing status
+            if st.session_state.network_files_uploaded:
+                st.success("✓ Files telah diproses dan siap digunakan")
+    # Check if all required data types are selected
+    can_process = False
+    if st.session_state.poi_df is not None and not st.session_state.poi_df.empty:
+        type_counts = st.session_state.poi_df['type'].value_counts()
+        required_types = {'depot', 'shelter', 'village'}
+        can_process = all(type_name in type_counts.index for type_name in required_types)
+
     # Process button
-    if st.button("Proses Analisis", disabled=not (st.session_state.nodes_df is not None and network_pycgr and network_json)):
+    if st.button("Proses Analisis", disabled=not (st.session_state.poi_df is not None and network_pycgr and network_json)):
         try:
             with st.spinner('Memproses data...'):
-                if st.session_state.nodes_df is None:
-                    st.error("Data nodes belum tersedia. Harap upload semua file yang diperlukan.")
+                if st.session_state.nodes_df is None or st.session_state.poi_df is None:
+                    st.error("Data nodes atau POI belum tersedia. Harap upload semua file yang diperlukan.")
                     return
                     
                 progress_bar = st.progress(0)
@@ -853,10 +915,14 @@ def main():
                     if idx == 0:
                         nodes_df = st.session_state.nodes_df
                         edges_df = st.session_state.edges_df
+                        poi_df = st.session_state.poi_df
                         
                     elif idx == 1:
-                        # Create a simple subgraph since we don't have POI data
-                        subgraph_nodes = nodes_df.copy()
+                        subgraph = create_subgraph(poi_df, nodes_df, edges_df)
+                        subgraph_nodes = pd.DataFrame([
+                            {'id': n, **d} 
+                            for n, d in subgraph.nodes(data=True)
+                        ])
                         
                     elif idx == 2:
                         risks = calculate_risk(subgraph_nodes)
@@ -890,6 +956,7 @@ def main():
             st.error(f"Error during processing: {str(e)}")
             st.write("Debug info:")
             st.write(f"nodes_df available: {st.session_state.nodes_df is not None}")
+            st.write(f"poi_df available: {st.session_state.poi_df is not None}")
 
     # Show results if available
     if st.session_state.get('processed_data', False):
@@ -949,7 +1016,7 @@ def main():
             risk_map = create_risk_map(
                 st.session_state.subgraph_nodes,
                 st.session_state.edges_with_risk,
-                None  # No POI data
+                st.session_state.poi_df
             )
             
             if risk_map:
@@ -1000,14 +1067,14 @@ def main():
             st.session_state.subgraph_nodes.to_excel(writer, sheet_name='Nodes', index=False)
         excel_buffer.seek(0)
         
-        # Create download buttons
+        # Create download buttons with directory name
         col_down1, col_down2 = st.columns(2)
         
         with col_down1:
             st.download_button(
                 label="Download Results (CSV)",
                 data=csv_str,
-                file_name=f"network_results.csv",
+                file_name=f"{directory_name}_results.csv",
                 mime="text/csv"
             )
             
@@ -1015,7 +1082,7 @@ def main():
             st.download_button(
                 label="Download Complete Results (Excel)",
                 data=excel_buffer,
-                file_name=f"network_complete_results.xlsx",
+                file_name=f"{directory_name}_complete_results.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
