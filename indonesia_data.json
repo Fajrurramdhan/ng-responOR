@@ -1,0 +1,227 @@
+{
+    "provinces": [
+      "ACEH", "SUMATERA UTARA", "SUMATERA BARAT", "RIAU", "JAMBI", "SUMATERA SELATAN",
+      "BENGKULU", "LAMPUNG", "KEPULAUAN BANGKA BELITUNG", "KEPULAUAN RIAU", "DKI JAKARTA",
+      "JAWA BARAT", "JAWA TENGAH", "DI YOGYAKARTA", "JAWA TIMUR", "BANTEN", "BALI",
+      "NUSA TENGGARA BARAT", "NUSA TENGGARA TIMUR", "KALIMANTAN BARAT", "KALIMANTAN TENGAH",
+      "KALIMANTAN SELATAN", "KALIMANTAN TIMUR", "KALIMANTAN UTARA", "SULAWESI UTARA",
+      "SULAWESI TENGAH", "SULAWESI SELATAN", "SULAWESI TENGGARA", "GORONTALO",
+      "SULAWESI BARAT", "MALUKU", "MALUKU UTARA", "PAPUA", "PAPUA BARAT"
+    ],
+    "locations": {
+      "DKI JAKARTA": {
+        "depot": [
+          {
+            "name": "KODAM JAYA JAKARTA",
+            "type": "depot",
+            "latitude": -6.2531661,
+            "longitude": 106.8690272
+          },
+          {
+            "name": "KANTOR SUDIN JAKARTA PUSAT",
+            "type": "depot",
+            "latitude": -6.161736,
+            "longitude": 106.809133
+          },
+          {
+            "name": "KANTOR SUDIN JAKARTA BARAT",
+            "type": "depot",
+            "latitude": -6.1739348,
+            "longitude": 106.7869936
+          },
+          {
+            "name": "SUDIN JAKARTA UTARA",
+            "type": "depot",
+            "latitude": -6.1271512,
+            "longitude": 106.9267197
+          },
+          {
+            "name": "SEKTOR KEBON JERUK",
+            "type": "depot",
+            "latitude": -6.1891183,
+            "longitude": 106.774407
+          },
+          {
+            "name": "SEKTOR CENGKARENG",
+            "type": "depot",
+            "latitude": -6.1357525,
+            "longitude": 106.7290962
+          },
+          {
+            "name": "SUDIN PEMADAM JAKARTA SELATAN",
+            "type": "depot",
+            "latitude": -6.2614927,
+            "longitude": 106.8105998
+          },
+          {
+            "name": "POS MANGGA DUA",
+            "type": "depot",
+            "latitude": -6.1352345,
+            "longitude": 106.8249553
+          },
+          {
+            "name": "POS PASAR BARU",
+            "type": "depot",
+            "latitude": -6.1585127,
+            "longitude": 106.831663
+          },
+          {
+            "name": "KANTOR SUDIN PEMADAM JAKARTA TIMUR",
+            "type": "depot",
+            "latitude": -6.2101492,
+            "longitude": 106.8588871
+          }
+        ],
+        "shelter": [
+          {
+            "name": "MUSHOLLA ALMUNIER",
+            "type": "shelter",
+            "latitude": -6.217245949493512,
+            "longitude": 106.84507237405143
+          },
+          {
+            "name": "TK RIS Rt.002/010",
+            "type": "shelter",
+            "latitude": -6.2361442146074575,
+            "longitude": 106.86194699464518
+          },
+          {
+            "name": "PUSKESMAS RAWAJATI I",
+            "type": "shelter",
+            "latitude": -6.257424471450691,
+            "longitude": 106.85815535790651
+          },
+          {
+            "name": "SDN 05 RAWAJATI",
+            "type": "shelter",
+            "latitude": -6.261125996965462,
+            "longitude": 106.85648668115363
+          },
+          {
+            "name": "SMPN 46, MUSHOLA JMAITUL KHAIR",
+            "type": "shelter",
+            "latitude": -6.266789634696536,
+            "longitude": 106.85445036800924
+          },
+          {
+            "name": "SEKRETARIAT RW. 06",
+            "type": "shelter",
+            "latitude": -6.217811728447582,
+            "longitude": 106.85221868333745
+          },
+          {
+            "name": "RUSUNAWA JATINEGARA BARAT",
+            "type": "shelter",
+            "latitude": -6.222931337596777,
+            "longitude": 106.86591936766129
+          },
+          {
+            "name": "MESS YWKA RT 001",
+            "type": "shelter",
+            "latitude": -6.212033125984106,
+            "longitude": 106.85178921641076
+          },
+          {
+            "name": "SDN 03 PENGADEGAN",
+            "type": "shelter",
+            "latitude": -6.2473598953353235,
+            "longitude": 106.84795708745818
+          },
+          {
+            "name": "RUMAH WARGA RT 8 /01",
+            "type": "shelter",
+            "latitude": -6.230136461477935,
+            "longitude": 106.86273344907485
+          }
+        ],
+        "village": [
+          {
+            "name": "Cipinang Melayu",
+            "type": "village",
+            "latitude": -6.2528204,
+            "longitude": 106.9093
+          },
+          {
+            "name": "Pinang Ranti",
+            "type": "village",
+            "latitude": -6.2907067,
+            "longitude": 106.884218
+          },
+          {
+            "name": "Kampung Makassar",
+            "type": "village",
+            "latitude": -6.2652296,
+            "longitude": 106.8757883
+          },
+          {
+            "name": "Halim Perdana Kusuma",
+            "type": "village",
+            "latitude": -6.2284425,
+            "longitude": 106.8851503
+          },
+          {
+            "name": "Dukuh",
+            "type": "village",
+            "latitude": -6.2321915,
+            "longitude": 106.9152021
+          },
+          {
+            "name": "Kampung Tengah",
+            "type": "village",
+            "latitude": -6.2900045,
+            "longitude": 106.8672736
+          },
+          {
+            "name": "Kampung Melayu",
+            "type": "village",
+            "latitude": -6.2154382,
+            "longitude": 106.8613515
+          }
+        ]
+      },
+      "JAWA BARAT": {
+        "depot": [
+          {
+            "name": "DAMKAR BANDUNG",
+            "type": "depot",
+            "latitude": -6.9147444,
+            "longitude": 107.6098111
+          },
+          {
+            "name": "DAMKAR BEKASI",
+            "type": "depot",
+            "latitude": -6.2382699,
+            "longitude": 106.9755726
+          }
+        ],
+        "shelter": [
+          {
+            "name": "GOR PAJAJARAN",
+            "type": "shelter",
+            "latitude": -6.9125000,
+            "longitude": 107.6097222
+          },
+          {
+            "name": "STADION PATRIOT",
+            "type": "shelter",
+            "latitude": -6.2344444,
+            "longitude": 106.9755556
+          }
+        ],
+        "village": [
+          {
+            "name": "Desa Cibiru",
+            "type": "village",
+            "latitude": -6.9372222,
+            "longitude": 107.7144444
+          },
+          {
+            "name": "Desa Tambun",
+            "type": "village",
+            "latitude": -6.2627778,
+            "longitude": 107.0572222
+          }
+        ]
+      }
+    }
+  }
