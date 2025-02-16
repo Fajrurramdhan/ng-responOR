@@ -796,21 +796,15 @@ def main():
 
     st.title("Network Generation")
     
-    # Add province and directory name selection at the top
-    selected_province, directory_name = create_province_selection()
-    
-
     st.write("Pilih lokasi untuk Integrate Module Network Generation")
 
     # File upload section
     col1, col2 = st.columns(2)
     
     with col1:
-        # Create location selection interface with selected province
-        selected_df = create_location_selection(selected_province)  # Pass the selected province here
-        
-        if selected_df is not None and not selected_df.empty:
-            st.session_state.poi_df = selected_df
+        st.subheader("Pilih Lokasi")
+        # Display a warning message when no data is available
+        st.info("Tidak ada data tersedia untuk provinsi SUMATERA BARAT")
     
     with col2:
         st.subheader("Network Files")
@@ -838,19 +832,13 @@ def main():
                 
             except Exception as e:
                 st.error(f"Error memproses network file: {str(e)}")
-    # Check if all required data types are selected
-    can_process = False
-    if st.session_state.poi_df is not None and not st.session_state.poi_df.empty:
-        type_counts = st.session_state.poi_df['type'].value_counts()
-        required_types = {'depot', 'shelter', 'village'}
-        can_process = all(type_name in type_counts.index for type_name in required_types)
-
+    
     # Process button
-    if st.button("Proses Analisis", disabled=not (st.session_state.poi_df is not None and network_pycgr and network_json)):
+    if st.button("Proses Analisis", disabled=not (st.session_state.nodes_df is not None and network_pycgr and network_json)):
         try:
             with st.spinner('Memproses data...'):
-                if st.session_state.nodes_df is None or st.session_state.poi_df is None:
-                    st.error("Data nodes atau POI belum tersedia. Harap upload semua file yang diperlukan.")
+                if st.session_state.nodes_df is None:
+                    st.error("Data nodes belum tersedia. Harap upload semua file yang diperlukan.")
                     return
                     
                 progress_bar = st.progress(0)
@@ -865,14 +853,10 @@ def main():
                     if idx == 0:
                         nodes_df = st.session_state.nodes_df
                         edges_df = st.session_state.edges_df
-                        poi_df = st.session_state.poi_df
                         
                     elif idx == 1:
-                        subgraph = create_subgraph(poi_df, nodes_df, edges_df)
-                        subgraph_nodes = pd.DataFrame([
-                            {'id': n, **d} 
-                            for n, d in subgraph.nodes(data=True)
-                        ])
+                        # Create a simple subgraph since we don't have POI data
+                        subgraph_nodes = nodes_df.copy()
                         
                     elif idx == 2:
                         risks = calculate_risk(subgraph_nodes)
@@ -906,7 +890,6 @@ def main():
             st.error(f"Error during processing: {str(e)}")
             st.write("Debug info:")
             st.write(f"nodes_df available: {st.session_state.nodes_df is not None}")
-            st.write(f"poi_df available: {st.session_state.poi_df is not None}")
 
     # Show results if available
     if st.session_state.get('processed_data', False):
@@ -966,7 +949,7 @@ def main():
             risk_map = create_risk_map(
                 st.session_state.subgraph_nodes,
                 st.session_state.edges_with_risk,
-                st.session_state.poi_df
+                None  # No POI data
             )
             
             if risk_map:
@@ -1017,14 +1000,14 @@ def main():
             st.session_state.subgraph_nodes.to_excel(writer, sheet_name='Nodes', index=False)
         excel_buffer.seek(0)
         
-        # Create download buttons with directory name
+        # Create download buttons
         col_down1, col_down2 = st.columns(2)
         
         with col_down1:
             st.download_button(
                 label="Download Results (CSV)",
                 data=csv_str,
-                file_name=f"{directory_name}_results.csv",
+                file_name=f"network_results.csv",
                 mime="text/csv"
             )
             
@@ -1032,7 +1015,7 @@ def main():
             st.download_button(
                 label="Download Complete Results (Excel)",
                 data=excel_buffer,
-                file_name=f"{directory_name}_complete_results.xlsx",
+                file_name=f"network_complete_results.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
